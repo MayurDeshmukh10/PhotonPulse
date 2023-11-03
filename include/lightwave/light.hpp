@@ -25,14 +25,13 @@ struct DirectLightSample {
         return {
             .wi = Vector(),
             .weight = Color(),
-            .pdf = 0,
             .distance = 0,
         };
     }
 
     /// @brief Tests whether the sample is invalid (i.e., sampling has failed). 
     bool isInvalid() const {
-        return pdf == 0;
+        return weight == Color(0);
     }
 };
 
