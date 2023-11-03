@@ -1,0 +1,49 @@
+/build*
+/sandbox
+/.vscode
+
+# Potential archives
+*.zip
+*.7z
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Python/Jupyter files
+*.ipynb
+*.pyc
+
+# Compiled Static libraries
+*.swp
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Directories
+.vs/
+# Not .vscode though!
+out/
+res/
+
+# macOS
+.DS_Store
