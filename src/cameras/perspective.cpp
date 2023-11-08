@@ -11,21 +11,41 @@ namespace lightwave {
  * are directed in negative y direction ( @code ray.direction.y < 0 ).
  */
 class Perspective : public Camera {
+    const Vector focal_vector = Vector(0.f, 0.f, 1.f);
+    Vector spanning_x;
+    Vector spanning_y;
+    float spanning_length;
+    
+
 public:
-    Perspective(const Properties &properties)
-    : Camera(properties) {
-        NOT_IMPLEMENTED
+    Perspective(const Properties &properties): Camera(properties) {
+        const float fov = properties.get<float>("fov");
+
+        this->spanning_length = tan(fov / 2);
+
+        this->spanning_x = Vector(spanning_length, 0.f, 0.f);
+        this->spanning_y = Vector(0.f, spanning_length, 0.f);
+
 
         // hints:
         // * precompute any expensive operations here (most importantly trigonometric functions)
         // * use m_resolution to find the aspect ratio of the image
     }
-
+        
     CameraSample sample(const Point2 &normalized, Sampler &rng) const override {
-        NOT_IMPLEMENTED
+        const Vector ray_direction = this->focal_vector + this->spanning_x * normalized.x() + this->spanning_y * normalized.y();
 
+        auto ray = Ray(Point(0.f, 0.f, 0.f), ray_direction.normalized());
+
+        ray = this->m_transform->apply(ray);   
         // hints:
-        // * use m_transform to transform the local camera coordinate system into the world coordinate system
+        //     // * use m_transform to transform the local camera coordinate system into the world coordinate system
+    
+
+        return CameraSample{
+            .ray=ray,
+            .weight = Color(1.0f)
+        };
     }
 
     std::string toString() const override {
