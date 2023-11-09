@@ -20,13 +20,23 @@ class Perspective : public Camera {
 public:
     Perspective(const Properties &properties): Camera(properties) {
         const float fov = properties.get<float>("fov");
+        const float aspect_ratio = 1.0 * this->m_resolution.x() / this->m_resolution.y();
 
-        this->spanning_length = tan(fov / 2);
+        
+        this->spanning_length = tan((fov*M_PI/180)/2);
 
-        this->spanning_x = Vector(spanning_length, 0.f, 0.f);
-        this->spanning_y = Vector(0.f, spanning_length, 0.f);
-
-
+        if (properties.get<std::string>("fovAxis") == "x") {            
+            this->spanning_x = Vector(spanning_length, 0.f, 0.f);
+            this->spanning_y = Vector(0.f, spanning_length / aspect_ratio, 0.f);
+        }
+        else if (properties.get<std::string>("fovAxis") == "y") {            
+            this->spanning_x = Vector(spanning_length*aspect_ratio, 0.f, 0.f);
+            this->spanning_y = Vector(0.f, spanning_length, 0.f);
+        }
+        else {
+            throw std::runtime_error("Invalid fovAxis");
+        }
+        
         // hints:
         // * precompute any expensive operations here (most importantly trigonometric functions)
         // * use m_resolution to find the aspect ratio of the image
@@ -36,11 +46,7 @@ public:
         const Vector ray_direction = this->focal_vector + this->spanning_x * normalized.x() + this->spanning_y * normalized.y();
 
         auto ray = Ray(Point(0.f, 0.f, 0.f), ray_direction.normalized());
-
         ray = this->m_transform->apply(ray);   
-        // hints:
-        //     // * use m_transform to transform the local camera coordinate system into the world coordinate system
-    
 
         return CameraSample{
             .ray=ray,
