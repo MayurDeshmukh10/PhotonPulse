@@ -26,7 +26,7 @@ namespace lightwave{
             surf.pdf = 0;
         }
 
-        inline bool quadratic(float a, float b, float c, float *t0, float *t1) const {
+        inline bool is_quadratic_solution(float a, float b, float c, float *t0, float *t1) const {
             // Find quadratic discriminant
             double discriminant = (double)b * (double)b - 4 * (double)a * (double)c;
             if (discriminant < 0) return false;
@@ -45,6 +45,7 @@ namespace lightwave{
 
     public:
         Sphere(const Properties &properties){
+            // There will probably be center and radius properties, but not for now
         }
 
         bool intersect(const Ray &ray, Intersection &its, Sampler &rng) const override {
@@ -52,7 +53,8 @@ namespace lightwave{
             float b = 2 * ( ray.origin.x() * ray.direction.x() + ray.origin.y() * ray.direction.y() + ray.origin.z() * ray.direction.z());
             float c = (ray.origin.x() * ray.origin.x() + ray.origin.y() * ray.origin.y() + ray.origin.z() * ray.origin.z()) - (radius * radius);
             float t0, t1, t;
-            if(!quadratic(a, b, c, &t0, &t1)) {
+            
+            if(!is_quadratic_solution(a, b, c, &t0, &t1)) {
                 its.t = 0.f;
                 return false;
             }
