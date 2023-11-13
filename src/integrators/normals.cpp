@@ -9,23 +9,18 @@ namespace lightwave {
         NormalsIntegrator(const Properties &properties)
         : SamplingIntegrator(properties) {
             remap = properties.get<bool>("remap", true);
-            
         }
             
         Color Li(const Ray &ray, Sampler &rng) override {
-            Vector d = ray.direction;
             
             // Intersect the ray with a scene object
             Intersection its = scene()->intersect(ray, rng);
 
-            // if no intersection, return the background color
-            if (!its) return scene()->evaluateBackground(d).value;
-            
-            d = its.wo;
+            Vector normal_vector = its ? its.wo : Vector(0.0, 0.0, 0.0);
 
-            if (remap) d = (d + Vector(1)) / 2; 
+            if (remap) normal_vector = (normal_vector + Vector(1)) / 2; 
             
-            return Color(d);
+            return Color(normal_vector);
         }
 
         std::string toString() const override {
