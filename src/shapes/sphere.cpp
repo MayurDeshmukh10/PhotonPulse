@@ -9,19 +9,19 @@ namespace lightwave{
         inline void populate(SurfaceEvent &surf, const Point &position) const {
             surf.position = position;
 
-            // surf.uv.x() = (position.x() + 1) / 2;
-            // surf.uv.y() = (position.y() + 1) / 2;
+            surf.uv.x() = (position.x() + 1) / 2;
+            surf.uv.y() = (position.y() + 1) / 2;
 
-            // Vector normal_vector = Vector(position.x(), position.y(), position.z()) - center;
-            // Vector tangent = normal_vector.cross(Vector(0, 1, 0));
-            // Vector bitangent = normal_vector.cross(tangent);
+            Vector normal_vector = Vector(position.x(), position.y(), position.z()) - center;
+            Vector tangent = Vector(1, 0, 0);
+            Vector bitangent = normal_vector.cross(tangent);
 
             // the tangent always points in positive x direction
-            // surf.frame.tangent = Vector(0, 0, 0);
-            // // the bitagent always points in positive y direction
-            // surf.frame.bitangent = Vector(0, 0, 0);
-            // // and accordingly, the normal always points in the positive z direction
-            // surf.frame.normal = Vector(0, 0, 0);
+            surf.frame.tangent = tangent.normalized();
+            // the bitagent always points in positive y direction
+            surf.frame.bitangent = bitangent.normalized();
+            // and accordingly, the normal always points in the positive z direction
+            surf.frame.normal = normal_vector.normalized();
 
             surf.pdf = 0;
         }
@@ -53,7 +53,7 @@ namespace lightwave{
             float b = 2 * ( ray.origin.x() * ray.direction.x() + ray.origin.y() * ray.direction.y() + ray.origin.z() * ray.direction.z());
             float c = (ray.origin.x() * ray.origin.x() + ray.origin.y() * ray.origin.y() + ray.origin.z() * ray.origin.z()) - (radius * radius);
             float t0, t1, t;
-            
+
             if(!is_quadratic_solution(a, b, c, &t0, &t1)) {
                 its.t = 0.f;
                 return false;
@@ -75,8 +75,10 @@ namespace lightwave{
 
             const Point position = ray(t);
             its.t = t;
+
             Vector normal_vector = Vector(position.x(), position.y(), position.z()) - center;
             its.wo = normal_vector.normalized();
+            
             populate(its, position);
             return true;
         }
