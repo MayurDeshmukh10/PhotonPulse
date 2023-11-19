@@ -11,6 +11,18 @@ void Instance::transformFrame(SurfaceEvent &surf) const {
     // * if m_flipNormal is true, flip the direction of the bitangent (which in effect flips the normal)
     // * make sure that the frame is orthonormal (you are free to change the bitangent for this, but keep
     //   the direction of the transformed tangent the same)
+    
+    surf.position = m_transform->apply(surf.position);
+    surf.frame.normal = m_transform->inverse(surf.frame.normal).normalized();
+
+    surf.frame.tangent = m_transform->apply(surf.frame.tangent).normalized();
+    
+    surf.frame.bitangent = surf.frame.normal * surf.frame.tangent;
+    surf.frame.bitangent = surf.frame.bitangent.normalized();
+    
+    if (m_flipNormal) {
+        surf.frame.bitangent = -surf.frame.bitangent;
+    }
 }
 
 bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) const {
@@ -19,24 +31,43 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
         Ray localRay = worldRay;
         if (m_shape->intersect(localRay, its, rng)) {
             its.instance = this;
+            return true;
         }
         return false;
     }
 
     const float previousT = its.t;
     Ray localRay;
-    NOT_IMPLEMENTED
 
     // hints:
     // * transform the ray (do not forget to normalize!)
-    // * how does its.t need to change?
+    // * how does *its.t need to change?
+    // * how does its.position need to change?
+
+    localRay = m_transform->inverse(worldRay);
+    localRay.direction = localRay.direction.normalized();
+
+    const Point local_intersection_point = m_transform->inverse(its.position);
+
+    if (previousT != Infinity){
+        its.t = Vector(local_intersection_point - localRay.origin).length();
+    }
 
     const bool wasIntersected = m_shape->intersect(localRay, its, rng);
+
     if (wasIntersected) {
         // hint: how does its.t need to change?
 
+        const Point global_intersection_point = m_transform->apply(its.position);
+        const double t_global = Vector(global_intersection_point - worldRay.origin).length();
+
         its.instance = this;
-        transformFrame(its);
+
+        its.t = t_global;
+        this->transformFrame(its);
+
+        return true;
+
     } else {
         its.t = previousT;
     }
