@@ -16,7 +16,7 @@ namespace lightwave {
             // Intersect the ray with a scene object
             Intersection its = scene()->intersect(ray, rng);
 
-            Vector normal_vector = its ? its.wo : Vector(0.0, 0.0, 0.0);
+            Vector normal_vector = its ? its.frame.normal : Vector(0.0, 0.0, 0.0);
 
             if (remap) normal_vector = (normal_vector + Vector(1)) / 2; 
             

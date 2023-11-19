@@ -29,27 +29,110 @@ class TriangleMesh : public AccelerationStructure {
     /// @brief Whether to interpolate the normals from m_vertices, or report the geometric normal instead.
     bool m_smoothNormals;
 
+    inline void populate(SurfaceEvent &surf, const Point &position, Vector normal) const {
+        surf.position = position;
+        surf.frame.normal = normal;
+    }
+
 protected:
     int numberOfPrimitives() const override {
         return int(m_triangles.size());
     }
 
     bool intersect(int primitiveIndex, const Ray &ray, Intersection &its, Sampler &rng) const override {
-        NOT_IMPLEMENTED
+        float inv_det, u, v;
+        Vector3i indexes = m_triangles[primitiveIndex];
+        Vertex v0 = m_vertices[indexes.x()];
+        Vertex v1 = m_vertices[indexes.y()];
+        Vertex v2 = m_vertices[indexes.z()];
 
-        // hints:
-        // * use m_triangles[primitiveIndex] to get the vertex indices of the triangle that should be intersected
-        // * if m_smoothNormals is true, interpolate the vertex normals from m_vertices
-        //   * make sure that your shading frame stays orthonormal!
-        // * if m_smoothNormals is false, use the geometrical normal (can be computed from the vertex positions)
+        Vector edge1 = {v1.position.x() - v0.position.x(), v1.position.y() - v0.position.y(), v1.position.z() - v0.position.z()};
+        Vector edge2 = {v2.position.x() - v0.position.x(), v2.position.y() - v0.position.y(), v2.position.z() - v0.position.z()};
+        Vector rayXedge2 = ray.direction.cross(edge2);
+        float det = edge1.dot(rayXedge2);
+
+        // This ray is parallel to the triangle
+        if(det > -Epsilon && det < Epsilon) {
+            return false;
+        }
+
+        inv_det = 1.0f / det;
+
+        // displacement from the origin of the ray to the first vertex of the triangle.
+        Vector s = { ray.origin.x() - v0.position.x(), ray.origin.y() - v0.position.y(), ray.origin.z() - v0.position.z() };
+
+        // barycentric coordinate
+        u = inv_det * s.dot(rayXedge2);
+
+        // check if u is outside the triangle
+        if(u < 0.0f || u > 1.0f) {
+            return false;
+        }
+
+        // Calculate vector perpendicular to both s and edge1
+        Vector sXedge1 = s.cross(edge1);
+
+        // barycentric coordinate
+        v = inv_det * ray.direction.dot(sXedge1);
+
+        // check if v is outside the triangle
+        if(v < 0.0f || u + v > 1.0f) {
+            return false;
+        }
+
+        const float t = inv_det * edge2.dot(sXedge1);
+
+        // Check if the intersection point is in front of the ray origin
+        if(t > Epsilon) {
+            its.t = t;
+            const Point position = ray(t);
+            Vector normal;
+            if(m_smoothNormals) {
+                Vertex interpolated_vertex = Vertex::interpolate(Vector2(u, v), v0, v1, v2);
+                normal = interpolated_vertex.normal.normalized();
+            } else {
+                normal = edge1.cross(edge2).normalized();
+            }
+            
+            populate(its, position, normal);
+
+            return true;
+
+        } else {
+            return false;
+        }
     }
 
     Bounds getBoundingBox(int primitiveIndex) const override {
-        NOT_IMPLEMENTED
+        Vector3i indexes = m_triangles[primitiveIndex];
+        Vertex v0 = m_vertices[indexes.x()];
+        Vertex v1 = m_vertices[indexes.y()];
+        Vertex v2 = m_vertices[indexes.z()];
+
+        float min_v_x = std::min(std::min(v0.position.x(), v1.position.x()), v2.position.x());
+        float min_v_y = std::min(std::min(v0.position.y(), v1.position.y()), v2.position.y());
+        float min_v_z = std::min(std::min(v0.position.z(), v1.position.z()), v2.position.z());
+
+
+        float max_v_x = std::max(std::max(v0.position.x(), v1.position.x()), v2.position.x());
+        float max_v_y = std::max(std::max(v0.position.y(), v1.position.y()), v2.position.y());
+        float max_v_z = std::max(std::max(v0.position.z(), v1.position.z()), v2.position.z());
+        
+
+		return Bounds(Point(min_v_x, min_v_y, min_v_z), Point(max_v_x, max_v_y, max_v_z));
     }
 
     Point getCentroid(int primitiveIndex) const override {
-        NOT_IMPLEMENTED
+        Vector3i indexes = m_triangles[primitiveIndex];
+        Vertex v0 = m_vertices[indexes.x()];
+        Vertex v1 = m_vertices[indexes.y()];
+        Vertex v2 = m_vertices[indexes.z()];
+
+        float centroid_x = (v0.position.x() + v1.position.x() + v2.position.x()) / 3;
+        float centroid_y = (v0.position.y() + v1.position.y() + v2.position.y()) / 3;
+        float centroid_z = (v0.position.z() + v1.position.z() + v2.position.z()) / 3;
+        
+        return Point(centroid_x, centroid_y, centroid_z);
     }
 
 public:
