@@ -26,7 +26,7 @@ namespace lightwave{
             surf.pdf = 0;
         }
 
-        inline bool is_quadratic_solution(float a, float b, float c, float *t0, float *t1) const {
+        inline bool is_quadratic_solution(double a, double b, double c, double *t0, double *t1) const {
             // Find quadratic discriminant
             double discriminant = (double)b * (double)b - 4 * (double)a * (double)c;
             if (discriminant < 0) return false;
@@ -40,6 +40,7 @@ namespace lightwave{
             *t0 = q / a;
             *t1 = c / q;
             if (*t0 > *t1) std::swap(*t0, *t1);
+
             return true;
         }
 
@@ -49,36 +50,30 @@ namespace lightwave{
         }
 
         bool intersect(const Ray &ray, Intersection &its, Sampler &rng) const override {
-            float a = ray.direction.x() * ray.direction.x() + ray.direction.y() * ray.direction.y() + ray.direction.z() * ray.direction.z();
-            float b = 2 * ( ray.origin.x() * ray.direction.x() + ray.origin.y() * ray.direction.y() + ray.origin.z() * ray.direction.z());
-            float c = (ray.origin.x() * ray.origin.x() + ray.origin.y() * ray.origin.y() + ray.origin.z() * ray.origin.z()) - (radius * radius);
-            float t0, t1, t;
+            double a = ray.direction.x() * ray.direction.x() + ray.direction.y() * ray.direction.y() + ray.direction.z() * ray.direction.z();
+            double b = 2 * ( ray.origin.x() * ray.direction.x() + ray.origin.y() * ray.direction.y() + ray.origin.z() * ray.direction.z());
+            double c = (ray.origin.x() * ray.origin.x() + ray.origin.y() * ray.origin.y() + ray.origin.z() * ray.origin.z()) - (radius * radius);
+            double t0, t1, t;
 
             if(!is_quadratic_solution(a, b, c, &t0, &t1)) {
-                its.t = 0.f;
                 return false;
             }
 
-            if (t0 < 0) {
-                t0 = t1; // if t0 is negative, let's use t1 instead
-                if (t0 < 0) {
-                    its.t = 0.f;
+            if (t0 < Epsilon) {
+                t0 = t1; // if t0 is negative, let's use t1 instead -- we are inside the sphere
+                if (t0 < Epsilon) {
                     return false; // both t0 and t1 are negative
                 }
             }
             t = t0;
 
-            if (t < Epsilon) {
-                its.t = 0.f;
+            if (t > its.t) {
                 return false;
             }
 
             const Point position = ray(t);
-            its.t = t;
 
-            Vector normal_vector = Vector(position.x(), position.y(), position.z()) - center;
-            its.wo = normal_vector.normalized();
-            
+            its.t = t;
             populate(its, position);
             return true;
         }
