@@ -13,13 +13,11 @@ void Instance::transformFrame(SurfaceEvent &surf) const {
     //   the direction of the transformed tangent the same)
     
     surf.position = m_transform->apply(surf.position);
-    surf.frame.normal = m_transform->inverse(surf.frame.normal).normalized();
-
     surf.frame.tangent = m_transform->apply(surf.frame.tangent).normalized();
-    
-    surf.frame.bitangent = surf.frame.normal * surf.frame.tangent;
-    surf.frame.bitangent = surf.frame.bitangent.normalized();
-    
+    surf.frame.bitangent = m_transform->apply(surf.frame.bitangent).normalized();
+
+    surf.frame.normal = surf.frame.tangent.cross(surf.frame.bitangent).normalized();
+
     if (m_flipNormal) {
         surf.frame.bitangent = -surf.frame.bitangent;
     }
