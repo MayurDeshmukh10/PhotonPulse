@@ -31,7 +31,19 @@ class TriangleMesh : public AccelerationStructure {
 
     inline void populate(SurfaceEvent &surf, const Point &position, Vector normal) const {
         surf.position = position;
-        surf.frame.normal = normal;
+        surf.frame.normal = normal.normalized();
+
+        Vector tangent;
+        if ((normal - Vector(0,0,1)).length() < Epsilon) {
+            tangent = Vector(1, 0, 0);
+        }
+        else{
+            tangent = normal.cross(Vector(0, 0, 1)).normalized();
+        }
+        Vector bitangent = normal.cross(tangent);
+
+        surf.frame.tangent = tangent.normalized();
+        surf.frame.bitangent = bitangent.normalized();
     }
 
 protected:
@@ -83,7 +95,7 @@ protected:
         const float t = inv_det * edge2.dot(sXedge1);
 
         // Check if the intersection point is in front of the ray origin
-        if(t > Epsilon) {
+        if(t > Epsilon and t < its.t) {
             its.t = t;
             const Point position = ray(t);
             Vector normal;
