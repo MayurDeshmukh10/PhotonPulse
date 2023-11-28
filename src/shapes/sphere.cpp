@@ -13,7 +13,15 @@ namespace lightwave{
             surf.uv.y() = (position.y() + 1) / 2;
 
             Vector normal_vector = Vector(position.x(), position.y(), position.z()) - center;
-            Vector tangent = Vector(1, 0, 0);
+
+
+            Vector tangent;
+            if ((normal_vector - Vector(0,0,1)).length() < Epsilon) {
+               tangent = Vector(1, 0, 0);
+            }
+            else{
+                tangent = normal_vector.cross(Vector(0, 0, 1)).normalized();
+            }
             Vector bitangent = normal_vector.cross(tangent);
 
             // the tangent always points in positive x direction
