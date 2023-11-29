@@ -9,8 +9,13 @@ namespace lightwave{
         inline void populate(SurfaceEvent &surf, const Point &position) const {
             surf.position = position;
 
-            surf.uv.x() = (position.x() + 1) / 2;
-            surf.uv.y() = (position.y() + 1) / 2;
+
+            float u = std::atan2(position.x(), position.z());
+            float v = std::acos(position.y());
+
+            // surf.uv = Point2((position.x() + 1) / 2, (position.y() + 1) / 2);
+
+            surf.uv = Point2(u / (2 * Pi), v / Pi);
 
             Vector normal_vector = Vector(position.x(), position.y(), position.z()) - center;
 
