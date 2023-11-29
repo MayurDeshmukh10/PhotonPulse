@@ -12,7 +12,15 @@ public:
 
     BsdfSample sample(const Point2 &uv, const Vector &wo,
                       Sampler &rng) const override {
-        NOT_IMPLEMENTED
+
+        BsdfSample sample;
+        Point2 samplePoint = rng.next2D();
+
+        sample.wi = squareToCosineHemisphere(samplePoint).normalized();//squareToUniformHemisphere(samplePoint); squareToCosineHemisphere
+
+        sample.weight = m_albedo->evaluate(uv); // * cosTheta / cosineHemispherePdf(sample.wi); // everything else simplifies to 1
+        
+        return sample;
     }
 
     std::string toString() const override {

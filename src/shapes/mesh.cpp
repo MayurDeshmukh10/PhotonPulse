@@ -95,8 +95,9 @@ protected:
         const float t = inv_det * edge2.dot(sXedge1);
 
         // Check if the intersection point is in front of the ray origin
-        if(t > Epsilon and t < its.t) {
+        if((t > Epsilon) and (t < its.t)) {
             its.t = t;
+            its.uv = Point2(u, v);
             const Point position = ray(t);
             Vector normal;
             if(m_smoothNormals) {

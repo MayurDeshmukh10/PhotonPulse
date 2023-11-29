@@ -46,7 +46,7 @@ public:
         const Vector ray_direction = this->focal_vector + this->spanning_x * normalized.x() + this->spanning_y * normalized.y();
 
         auto ray = Ray(Point(0.f, 0.f, 0.f), ray_direction.normalized());
-        ray = this->m_transform->apply(ray);   
+        ray = this->m_transform->apply(ray).normalized();   
 
         return CameraSample{
             .ray=ray,
