@@ -52,29 +52,29 @@ protected:
     }
 
     bool intersect(int primitiveIndex, const Ray &ray, Intersection &its, Sampler &rng) const override {
-        float inv_det, u, v;
         Vector3i indexes = m_triangles[primitiveIndex];
-        Vertex v0 = m_vertices[indexes.x()];
-        Vertex v1 = m_vertices[indexes.y()];
-        Vertex v2 = m_vertices[indexes.z()];
+        Vertex v0 = m_vertices[indexes[0]];
+        Vertex v1 = m_vertices[indexes[1]];
+        Vertex v2 = m_vertices[indexes[2]];
 
-        Vector edge1 = {v1.position.x() - v0.position.x(), v1.position.y() - v0.position.y(), v1.position.z() - v0.position.z()};
-        Vector edge2 = {v2.position.x() - v0.position.x(), v2.position.y() - v0.position.y(), v2.position.z() - v0.position.z()};
+        Vector edge1 = v1.position - v0.position;
+        Vector edge2 = v2.position - v0.position;
+        
         Vector rayXedge2 = ray.direction.cross(edge2);
         float det = edge1.dot(rayXedge2);
 
         // This ray is parallel to the triangle
-        if(det > -Epsilon && det < Epsilon) {
+        if(det > -(1e-8f) && det < (1e-8f)) {
             return false;
         }
 
-        inv_det = 1.0f / det;
+        const float inv_det = 1.0f / det;
 
         // displacement from the origin of the ray to the first vertex of the triangle.
         Vector s = { ray.origin.x() - v0.position.x(), ray.origin.y() - v0.position.y(), ray.origin.z() - v0.position.z() };
 
         // barycentric coordinate
-        u = inv_det * s.dot(rayXedge2);
+        const float u = inv_det * s.dot(rayXedge2);
 
         // check if u is outside the triangle
         if(u < 0.0f || u > 1.0f) {
@@ -85,7 +85,7 @@ protected:
         Vector sXedge1 = s.cross(edge1);
 
         // barycentric coordinate
-        v = inv_det * ray.direction.dot(sXedge1);
+        const float v = inv_det * ray.direction.dot(sXedge1);
 
         // check if v is outside the triangle
         if(v < 0.0f || u + v > 1.0f) {
@@ -97,11 +97,12 @@ protected:
         // Check if the intersection point is in front of the ray origin
         if((t > Epsilon) and (t < its.t)) {
             its.t = t;
-            its.uv = Point2(u, v);
+            Vector2 uv = Vector2(u, v);
+            its.uv = interpolateBarycentric(uv, v0.texcoords, v1.texcoords, v2.texcoords);
             const Point position = ray(t);
             Vector normal;
             if(m_smoothNormals) {
-                Vertex interpolated_vertex = Vertex::interpolate(Vector2(u, v), v0, v1, v2);
+                Vertex interpolated_vertex = Vertex::interpolate(uv, v0, v1, v2);
                 normal = interpolated_vertex.normal.normalized();
             } else {
                 normal = edge1.cross(edge2).normalized();
@@ -125,7 +126,6 @@ protected:
         float min_v_x = std::min(std::min(v0.position.x(), v1.position.x()), v2.position.x());
         float min_v_y = std::min(std::min(v0.position.y(), v1.position.y()), v2.position.y());
         float min_v_z = std::min(std::min(v0.position.z(), v1.position.z()), v2.position.z());
-
 
         float max_v_x = std::max(std::max(v0.position.x(), v1.position.x()), v2.position.x());
         float max_v_y = std::max(std::max(v0.position.y(), v1.position.y()), v2.position.y());

@@ -24,13 +24,15 @@ namespace lightwave {
                 return scene()->evaluateBackground(ray.direction).value;
             }
 
-            if (not its.instance->bsdf()){ // if it is not a reflective object, we can only get the emission
-                return its.evaluateEmission();
-            }
+            color = color + weight * its.evaluateEmission();
 
             //generate a new direction based on the BSDF and update the ray’s weight by multiplying it by the sampled BSDF weight
+            if (not its.instance->bsdf()) {
+                return color;
+            }
+
+            // 1. sample a direction from the BSDF
             BsdfSample first_bsdf_sample = its.instance->bsdf()->sample(its.uv, its.wo, rng);
-            color += first_bsdf_sample.weight * its.evaluateEmission();
             weight *= first_bsdf_sample.weight;
 
             // remap the sample direction to global coordinates
