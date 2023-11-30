@@ -43,25 +43,36 @@ public:
     }
 
     Point2i getBorderedPixelCoords(const Point2 &pixel_xy) const {
-        Point2i rounded_coords = Point2i(
-            std::round(pixel_xy.x()),
-            std::round(pixel_xy.y())
+        Point2i floored_coords = Point2i(
+            std::floor(pixel_xy.x()),
+            std::floor(pixel_xy.y())
         );
 
         if (m_border == BorderMode::Clamp) {
             return Point2i(
-                std::clamp(rounded_coords.x(), 0, m_image->resolution().x() - 1),
-                std::clamp(rounded_coords.y(), 0, m_image->resolution().y() - 1));
+                std::clamp(floored_coords.x(), 0, m_image->resolution().x() - 1),
+                std::clamp(floored_coords.y(), 0, m_image->resolution().y() - 1));
         } else {
-            return Point2i(
-                rounded_coords.x() % m_image->resolution().x(),
-                rounded_coords.y() % m_image->resolution().y());
+            Point2i coords = Point2i(
+                floored_coords.x() % m_image->resolution().x(),
+                floored_coords.y() % m_image->resolution().y());
+                
+            if (coords.x() < 0) {
+                coords[0] += m_image->resolution().x();
+            }
+            if (coords.y() < 0) {
+                coords[1] += m_image->resolution().y();
+            }
+
+            return coords % m_image->resolution();
+
         }
     }
 
     Color sampleNearestNeighbor(const Point2 &scaled_uv) const {
         const Point2i pixel_xy = getBorderedPixelCoords(scaled_uv);
-        return (*m_image)(pixel_xy);
+        //return (*m_image)(pixel_xy);
+        return Color(m_image->get(pixel_xy));
     }
 
     float getBilinearWeight(const Point2 &scaled_uv, const Point2 &pixel_xy) const {
@@ -78,18 +89,18 @@ public:
         );
 
         const Point2 upper_right = Point2(
-            std::ceil(scaled_uv.x()),
-            std::ceil(scaled_uv.y())
+            std::floor(scaled_uv.x() + 1),
+            std::floor(scaled_uv.y() + 1)
         );
 
         const Point2 lower_right = Point2(
-            upper_right.x(),
-            lower_left.y()
+            std::floor(scaled_uv.x() + 1),
+            std::floor(scaled_uv.y())
         );
 
         const Point2 upper_left = Point2(
-            lower_left.x(),
-            upper_right.y()
+            std::floor(scaled_uv.x()),
+            std::floor(scaled_uv.y() + 1)
         );
 
         return getBilinearWeight(scaled_uv, lower_left) * (*m_image)(getBorderedPixelCoords(lower_left)) +
@@ -99,17 +110,17 @@ public:
     }
 
     Color evaluate(const Point2 &uv) const override {
-        const Point2 scaled_uv = Point2(
+        Point2 scaled_uv = Point2(
             uv.x() * m_image->resolution().x(),
-            uv.y() * m_image->resolution().y()
+            (1-uv.y()) * m_image->resolution().y() // flip y axis
         );
 
-
         if (m_filter == FilterMode::Nearest) {
-            return sampleNearestNeighbor(scaled_uv);
-        } else {
-            // bilinear filtering
-            return sampleBilinear(scaled_uv);
+            return sampleNearestNeighbor(scaled_uv) * m_exposure;
+        } else { // bilinear filtering
+
+            scaled_uv = scaled_uv - Point2(0.5, 0.5);
+            return sampleBilinear(scaled_uv) * m_exposure;
         }
     }
 
