@@ -33,6 +33,8 @@ class AccelerationStructure : public Shape {
     /// remapping.
     typedef int32_t NodeIndex;
 
+    struct Bin { Bounds bounds; int primitiveCount = 0; };
+
     /// @brief A node in our binary BVH tree.
     struct Node {
         /// @brief The axis aligned bounding box of this node.
@@ -182,8 +184,65 @@ class AccelerationStructure : public Shape {
                     size.y() * size.z());
     }
 
-    NodeIndex binning(Node &node, int splitAxis) {
-        NOT_IMPLEMENTED
+    float binning(Node &node, int& splitAxis, float &splitCost) {
+        const int BINS = 16;
+        float splitPos;
+        float bestCost = 1e30f;
+
+        for(int axis=0; axis < 3; axis++)
+        {
+            float boundsMin = 1e30f, boundsMax = -1e30f;
+
+            // calculate max & min bounds for all the primitives
+            for(NodeIndex i=0; i < node.primitiveCount; i++) {
+                boundsMin = min( boundsMin, getCentroid(m_primitiveIndices[node.leftFirst + i])[axis] );
+                boundsMax = max( boundsMax, getCentroid(m_primitiveIndices[node.leftFirst + i])[axis] );
+            }
+
+            if (boundsMin == boundsMax) continue;
+
+            Bin bin[BINS];
+            
+            float scale = BINS / (boundsMax - boundsMin);
+            for (NodeIndex i = 0; i < node.primitiveCount; i++) {
+                int binIdx = min( BINS - 1, (int)((getCentroid(m_primitiveIndices[node.leftFirst + i])[axis] - boundsMin) * scale) );
+                bin[binIdx].primitiveCount++;
+                bin[binIdx].bounds.extend(getBoundingBox(m_primitiveIndices[node.leftFirst + i]));
+            }
+            
+            // collect data for the bins
+            float leftArea[BINS - 1], rightArea[BINS - 1];
+            int leftCount[BINS - 1], rightCount[BINS - 1];
+            Bounds leftBox = Bounds::empty();
+            Bounds rightBox = Bounds::empty();
+            int leftSum = 0, rightSum = 0;
+            for (int i = 0; i < BINS - 1; i++) {
+                leftSum += bin[i].primitiveCount;
+                leftCount[i] = leftSum;
+                leftBox.extend( bin[i].bounds );
+                leftArea[i] = surfaceArea(leftBox);
+                rightSum += bin[BINS - 1 - i].primitiveCount;
+                rightCount[BINS - 2 - i] = rightSum;
+                rightBox.extend( bin[BINS - 1 - i].bounds );
+                rightArea[BINS - 2 - i] = surfaceArea(rightBox);
+            }
+
+            // calculate SAH cost
+            scale = (boundsMax - boundsMin) / BINS;
+            for (int i = 0; i < BINS - 1; i++) {
+                float planeCost = leftCount[i] * leftArea[i] + rightCount[i] * rightArea[i];
+                if (planeCost < bestCost)
+                    splitAxis = axis, splitPos = boundsMin + scale * (i + 1), bestCost = planeCost;
+            }
+        }
+
+        splitCost = bestCost;
+
+        return splitPos;
+    }
+
+    float calculateNodeCost(Node &node) {
+        return node.primitiveCount * surfaceArea(node.aabb);
     }
 
     /// @brief Attempts to subdivide a given BVH node.
@@ -194,37 +253,41 @@ class AccelerationStructure : public Shape {
         }
 
         // pick the axis with highest bounding box length as split axis.
-        const int splitAxis = parent.aabb.diagonal().maxComponentIndex();
+        int splitAxis;
         const NodeIndex firstPrimitive = parent.firstPrimitiveIndex();
 
         // set to true when implementing binning
-        static constexpr bool UseSAH = false;
+        static constexpr bool UseSAH = true;
 
         // the point at which to split (note that primitives must be re-ordered
         // so that all children of the left node will have a smaller index than
         // firstRightIndex, and nodes on the right will have an index larger or
         // equal to firstRightIndex)
-        NodeIndex firstRightIndex;
+        NodeIndex firstRightIndex = firstPrimitive;
+        NodeIndex lastLeftIndex = parent.lastPrimitiveIndex();
+        float splitPos, splitCost;
+        float nosplitCost = calculateNodeCost(parent);
+
         if (UseSAH) {
-            firstRightIndex = binning(parent, splitAxis);
+            splitPos = binning(parent, splitAxis, splitCost);
+            if (splitCost >= nosplitCost) return;
+
         } else {
+            splitAxis = parent.aabb.diagonal().maxComponentIndex();
             // split in the middle
-            const float splitPos =
+            splitPos =
                 parent.aabb.center()[splitAxis]; // pick center of bounding box
                                                  // as split pos
+        }
 
-            // partition algorithm (you might remember this from quicksort)
-            firstRightIndex         = firstPrimitive;
-            NodeIndex lastLeftIndex = parent.lastPrimitiveIndex();
-            while (firstRightIndex <= lastLeftIndex) {
-                if (getCentroid(
-                        m_primitiveIndices[firstRightIndex])[splitAxis] <
-                    splitPos) {
-                    firstRightIndex++;
-                } else {
-                    std::swap(m_primitiveIndices[firstRightIndex],
-                              m_primitiveIndices[lastLeftIndex--]);
-                }
+        while (firstRightIndex <= lastLeftIndex) {
+            if (getCentroid(
+                    m_primitiveIndices[firstRightIndex])[splitAxis] <
+                splitPos) {
+                firstRightIndex++;
+            } else {
+                std::swap(m_primitiveIndices[firstRightIndex],
+                            m_primitiveIndices[lastLeftIndex--]);
             }
         }
 
