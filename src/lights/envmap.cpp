@@ -16,15 +16,36 @@ public:
     }
 
     BackgroundLightEval evaluate(const Vector &direction) const override {
-        Vector2 warped = Vector2(0, 0);
+        Vector local_direction = direction;
+
+        if (m_transform) {
+            local_direction = m_transform->inverse(direction).normalized();
+        }
+
+        local_direction = Vector(local_direction.x(), local_direction.y(), -local_direction.z());
+
+        
+        // find the corresponding pixel coordinate for the given local direction
+        float theta = std::atan2(local_direction.z(), local_direction.x());
+        float tex_x = (theta + Pi)/(2*Pi);//phi / (2 * Pi);
+
+        float phi = std::acos(local_direction.y());
+        if (phi < 0) {
+            phi += 2 * Pi;
+        }
+        float tex_y = phi / Pi;
+
+        // return the corresponding pixel value
+        return {
+            .value = m_texture->evaluate(Vector2(tex_x, tex_y)),
+            // .value = m_texture->evaluate(uv),
+        };
+
         // hints:
         // * if (m_transform) { transform direction vector from world to local
         // coordinates }
         // * find the corresponding pixel coordinate for the given local
         // direction
-        return {
-            .value = m_texture->evaluate(warped),
-        };
     }
 
     DirectLightSample sampleDirect(const Point &origin,

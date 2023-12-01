@@ -13,9 +13,7 @@ namespace lightwave{
             float u = std::atan2(position.x(), position.z());
             float v = std::acos(position.y());
 
-            // surf.uv = Point2((position.x() + 1) / 2, (position.y() + 1) / 2);
-
-            surf.uv = Point2(u / (2 * Pi), v / Pi);
+            surf.uv = Point2(u / (2 * Pi) + 0.5, v / Pi);
 
             Vector normal_vector = Vector(position.x(), position.y(), position.z()) - center;
 
@@ -27,6 +25,7 @@ namespace lightwave{
             else{
                 tangent = normal_vector.cross(Vector(0, 0, 1)).normalized();
             }
+
             Vector bitangent = normal_vector.cross(tangent);
 
             // the tangent always points in positive x direction
@@ -72,9 +71,9 @@ namespace lightwave{
                 return false;
             }
 
-            if (t0 < Epsilon) {
+            if (t0 < 1e-4 ) {
                 t0 = t1; // if t0 is negative, let's use t1 instead -- we are inside the sphere
-                if (t0 < Epsilon) {
+                if (t0 < 1e-4 ) {
                     return false; // both t0 and t1 are negative
                 }
             }
