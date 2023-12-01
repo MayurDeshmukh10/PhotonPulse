@@ -33,7 +33,7 @@ class AccelerationStructure : public Shape {
     /// remapping.
     typedef int32_t NodeIndex;
 
-    struct Bin { Bounds bounds; int triCount = 0; };
+    struct Bin { Bounds bounds; int primitiveCount = 0; };
 
     /// @brief A node in our binary BVH tree.
     struct Node {
@@ -185,13 +185,14 @@ class AccelerationStructure : public Shape {
     }
 
     float binning(Node &node, int& splitAxis, float &splitCost) {
-        const int BINS = 15;
+        const int BINS = 16;
         float splitPos;
         float bestCost = 1e30f;
 
         for(int axis=0; axis < 3; axis++)
         {
             float boundsMin = 1e30f, boundsMax = -1e30f;
+
             // calculate max & min bounds for all the primitives
             for(NodeIndex i=0; i < node.primitiveCount; i++) {
                 boundsMin = min( boundsMin, getCentroid(m_primitiveIndices[node.leftFirst + i])[axis] );
@@ -199,12 +200,13 @@ class AccelerationStructure : public Shape {
             }
 
             if (boundsMin == boundsMax) continue;
+
             Bin bin[BINS];
             
             float scale = BINS / (boundsMax - boundsMin);
             for (NodeIndex i = 0; i < node.primitiveCount; i++) {
                 int binIdx = min( BINS - 1, (int)((getCentroid(m_primitiveIndices[node.leftFirst + i])[axis] - boundsMin) * scale) );
-                bin[binIdx].triCount++;
+                bin[binIdx].primitiveCount++;
                 bin[binIdx].bounds.extend(getBoundingBox(m_primitiveIndices[node.leftFirst + i]));
             }
             
@@ -215,11 +217,11 @@ class AccelerationStructure : public Shape {
             Bounds rightBox = Bounds::empty();
             int leftSum = 0, rightSum = 0;
             for (int i = 0; i < BINS - 1; i++) {
-                leftSum += bin[i].triCount;
+                leftSum += bin[i].primitiveCount;
                 leftCount[i] = leftSum;
                 leftBox.extend( bin[i].bounds );
                 leftArea[i] = surfaceArea(leftBox);
-                rightSum += bin[BINS - 1 - i].triCount;
+                rightSum += bin[BINS - 1 - i].primitiveCount;
                 rightCount[BINS - 2 - i] = rightSum;
                 rightBox.extend( bin[BINS - 1 - i].bounds );
                 rightArea[BINS - 2 - i] = surfaceArea(rightBox);
@@ -261,27 +263,14 @@ class AccelerationStructure : public Shape {
         // so that all children of the left node will have a smaller index than
         // firstRightIndex, and nodes on the right will have an index larger or
         // equal to firstRightIndex)
-        NodeIndex firstRightIndex;
-        firstRightIndex         = firstPrimitive;
+        NodeIndex firstRightIndex = firstPrimitive;
         NodeIndex lastLeftIndex = parent.lastPrimitiveIndex();
-        float splitPos;
+        float splitPos, splitCost;
         float nosplitCost = calculateNodeCost(parent);
-        float splitCost;
-        // TODO: To refactor this code
+
         if (UseSAH) {
             splitPos = binning(parent, splitAxis, splitCost);
             if (splitCost >= nosplitCost) return;
-
-            while (firstRightIndex <= lastLeftIndex) {
-                if (getCentroid(
-                        m_primitiveIndices[firstRightIndex])[splitAxis] >
-                    splitPos) {
-                    firstRightIndex++;
-                } else {
-                    std::swap(m_primitiveIndices[firstRightIndex],
-                              m_primitiveIndices[lastLeftIndex--]);
-                }
-            }
 
         } else {
             splitAxis = parent.aabb.diagonal().maxComponentIndex();
@@ -289,19 +278,16 @@ class AccelerationStructure : public Shape {
             splitPos =
                 parent.aabb.center()[splitAxis]; // pick center of bounding box
                                                  // as split pos
+        }
 
-            // partition algorithm (you might remember this from quicksort)
-            // firstRightIndex         = firstPrimitive;
-            // NodeIndex lastLeftIndex = parent.lastPrimitiveIndex();
-            while (firstRightIndex <= lastLeftIndex) {
-                if (getCentroid(
-                        m_primitiveIndices[firstRightIndex])[splitAxis] <
-                    splitPos) {
-                    firstRightIndex++;
-                } else {
-                    std::swap(m_primitiveIndices[firstRightIndex],
-                              m_primitiveIndices[lastLeftIndex--]);
-                }
+        while (firstRightIndex <= lastLeftIndex) {
+            if (getCentroid(
+                    m_primitiveIndices[firstRightIndex])[splitAxis] <
+                splitPos) {
+                firstRightIndex++;
+            } else {
+                std::swap(m_primitiveIndices[firstRightIndex],
+                            m_primitiveIndices[lastLeftIndex--]);
             }
         }
 
