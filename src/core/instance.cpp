@@ -30,8 +30,9 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
         if (m_shape->intersect(localRay, its, rng)) {
             its.instance = this;
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     const float previousT = its.t;
@@ -68,9 +69,8 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
 
     } else {
         its.t = previousT;
+        return false;
     }
-
-    return false;
 }
 
 Bounds Instance::getBoundingBox() const {
