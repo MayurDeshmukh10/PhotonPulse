@@ -24,8 +24,6 @@ public:
 
         local_direction = Vector(local_direction.x(), local_direction.y(), -local_direction.z());
 
-        
-        // find the corresponding pixel coordinate for the given local direction
         float theta = std::atan2(local_direction.z(), local_direction.x());
         float tex_x = (theta + Pi)/(2*Pi);//phi / (2 * Pi);
 
@@ -35,10 +33,8 @@ public:
         }
         float tex_y = phi / Pi;
 
-        // return the corresponding pixel value
         return {
             .value = m_texture->evaluate(Vector2(tex_x, tex_y)),
-            // .value = m_texture->evaluate(uv),
         };
 
         // hints:
