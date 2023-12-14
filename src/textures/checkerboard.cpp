@@ -13,7 +13,6 @@ public:
         m_scale = properties.get<Vector2>("scale");
     }
 
-
     bool isOddTile(float x) const {
         return int(x) % 2;
     }

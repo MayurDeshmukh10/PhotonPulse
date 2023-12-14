@@ -65,7 +65,6 @@ public:
             }
 
             return coords % m_image->resolution();
-
         }
     }
 

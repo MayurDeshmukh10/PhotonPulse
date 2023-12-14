@@ -12,7 +12,11 @@ public:
 
     BsdfEval evaluate(const Point2 &uv, const Vector &wo,
                       const Vector &wi) const override {
-        NOT_IMPLEMENTED
+        
+        return { 
+            .value = m_albedo->evaluate(uv) * abs(Frame::cosTheta(wi)) / Pi,
+        };
+        
     }
 
     BsdfSample sample(const Point2 &uv, const Vector &wo,

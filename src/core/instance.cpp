@@ -44,25 +44,21 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
     // * how does its.position need to change?
 
     localRay = m_transform->inverse(worldRay);
+    const float local_ray_scale = localRay.direction.length();
+
+    its.t *= local_ray_scale;
+
     localRay.direction = localRay.direction.normalized();
-
-    const Point local_intersection_point = m_transform->inverse(its.position);
-
-    if (previousT != Infinity){
-        its.t = Vector(local_intersection_point - localRay.origin).length();
-    }
 
     const bool wasIntersected = m_shape->intersect(localRay, its, rng);
 
     if (wasIntersected) {
         // hint: how does its.t need to change?
 
-        const Point global_intersection_point = m_transform->apply(its.position);
-        const double t_global = Vector(global_intersection_point - worldRay.origin).length();
 
         its.instance = this;
 
-        its.t = t_global;
+        its.t /= local_ray_scale;
         this->transformFrame(its);
 
         return true;
