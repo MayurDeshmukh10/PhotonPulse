@@ -45,17 +45,13 @@ bool Instance::intersect(const Ray &worldRay, Intersection &its, Sampler &rng) c
 
     localRay = m_transform->inverse(worldRay);
     const float local_ray_scale = localRay.direction.length();
+    localRay.direction = localRay.direction.normalized();
 
     its.t *= local_ray_scale;
-
-    localRay.direction = localRay.direction.normalized();
 
     const bool wasIntersected = m_shape->intersect(localRay, its, rng);
 
     if (wasIntersected) {
-        // hint: how does its.t need to change?
-
-
         its.instance = this;
 
         its.t /= local_ray_scale;

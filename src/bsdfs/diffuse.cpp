@@ -12,9 +12,15 @@ public:
 
     BsdfEval evaluate(const Point2 &uv, const Vector &wo,
                       const Vector &wi) const override {
-        
+
+        if (wo.z() * wi.z() <= 0) {
+            return {
+                .value = Color(0),
+            };
+        }
+
         return { 
-            .value = m_albedo->evaluate(uv) * abs(Frame::cosTheta(wi)) / Pi,
+            .value = m_albedo->evaluate(uv) * abs(Frame::cosTheta(wi)) / Pi, 
         };
         
     }
@@ -23,11 +29,15 @@ public:
                       Sampler &rng) const override {
 
         BsdfSample sample;
+        sample.weight = m_albedo->evaluate(uv); // * cosTheta / cosineHemispherePdf(sample.wi); // everything else simplifies to 1
+
         Point2 samplePoint = rng.next2D();
 
-        sample.wi = squareToCosineHemisphere(samplePoint).normalized();//squareToUniformHemisphere(samplePoint); squareToCosineHemisphere
+        sample.wi = squareToCosineHemisphere(samplePoint).normalized();
 
-        sample.weight = m_albedo->evaluate(uv); // * cosTheta / cosineHemispherePdf(sample.wi); // everything else simplifies to 1
+        if (sample.wi.z() * wo.z() < 0) {
+            sample.wi[2] = sample.wi[2] * -1;
+        }
         
         return sample;
     }
