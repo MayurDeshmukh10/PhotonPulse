@@ -2,6 +2,7 @@
 
 #include "fresnel.hpp"
 #include "microfacet.hpp"
+#include <stdexcept>
 
 namespace lightwave {
 
@@ -9,7 +10,11 @@ struct DiffuseLobe {
     Color color;
 
     BsdfEval evaluate(const Vector &wo, const Vector &wi) const {
-        NOT_IMPLEMENTED
+        BsdfEval eval;
+
+        eval.value = color * abs(Frame::cosTheta(wi)) / Pi;
+
+        return eval;
 
         // hints:
         // * copy your diffuse bsdf evaluate here
@@ -17,7 +22,14 @@ struct DiffuseLobe {
     }
 
     BsdfSample sample(const Vector &wo, Sampler &rng) const {
-        NOT_IMPLEMENTED
+        BsdfSample sample;
+        Point2 samplePoint = rng.next2D();
+
+        sample.wi = squareToCosineHemisphere(samplePoint).normalized();
+
+        sample.weight = color;
+        
+        return sample;
 
         // hints:
         // * copy your diffuse bsdf evaluate here
@@ -30,7 +42,11 @@ struct MetallicLobe {
     Color color;
 
     BsdfEval evaluate(const Vector &wo, const Vector &wi) const {
-        NOT_IMPLEMENTED
+        BsdfEval eval;
+        Vector wh = (wi.normalized() + wo.normalized()).normalized();
+        eval.value = (0.25 * color * microfacet::evaluateGGX(alpha, wh) * microfacet::smithG1(alpha, wh, wi) * microfacet::smithG1(alpha, wh, wo)) / Frame::absCosTheta(wo);
+
+        return eval;
 
         // hints:
         // * copy your roughconductor bsdf evaluate here
@@ -40,7 +56,15 @@ struct MetallicLobe {
     }
 
     BsdfSample sample(const Vector &wo, Sampler &rng) const {
-        NOT_IMPLEMENTED
+        BsdfSample sample;
+        Point2 samplePoint = rng.next2D();
+         
+        Vector sampledNormal = microfacet::sampleGGXVNDF(alpha, wo, samplePoint);
+        sample.wi = reflect(wo, sampledNormal);
+        Vector wh = (sample.wi.normalized() + wo.normalized()).normalized();
+        sample.weight = color * microfacet::smithG1(alpha, wh, sample.wi);
+
+        return sample;
 
         // hints:
         // * copy your roughconductor bsdf sample here
@@ -100,7 +124,12 @@ public:
     BsdfEval evaluate(const Point2 &uv, const Vector &wo,
                       const Vector &wi) const override {
         const auto combination = combine(uv, wo);
-        NOT_IMPLEMENTED
+
+        BsdfEval eval;
+
+        eval.value = combination.diffuse.evaluate(wo, wi).value + combination.metallic.evaluate(wo, wi).value;
+
+        return eval;
 
         // hint: evaluate `combination.diffuse` and `combination.metallic` and
         // combine their results
@@ -108,8 +137,21 @@ public:
 
     BsdfSample sample(const Point2 &uv, const Vector &wo,
                       Sampler &rng) const override {
+        BsdfSample sample;
         const auto combination = combine(uv, wo);
-        NOT_IMPLEMENTED
+        float diffuseSelectionProb = combination.diffuseSelectionProb;
+        float roughConductorSelectionProb = 1 - diffuseSelectionProb;
+        float random_number = rng.next();
+
+        if(random_number < diffuseSelectionProb) {
+            sample = combination.diffuse.sample(wo, rng);
+            sample.weight = sample.weight / diffuseSelectionProb;
+        } else {
+            sample = combination.metallic.sample(wo, rng);
+            sample.weight = sample.weight / roughConductorSelectionProb;
+        }
+
+        return sample;
 
         // hint: sample either `combination.diffuse` (probability
         // `combination.diffuseSelectionProb`) or `combination.metallic`

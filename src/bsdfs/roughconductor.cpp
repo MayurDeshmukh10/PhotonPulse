@@ -20,8 +20,13 @@ public:
         // transition from specular to rough. For numerical stability, we avoid
         // extremely specular distributions (alpha values below 10^-3)
         const auto alpha = std::max(float(1e-3), sqr(m_roughness->scalar(uv)));
+        BsdfEval eval;
+        Vector wh = (wi.normalized() + wo.normalized()).normalized();
 
-        NOT_IMPLEMENTED
+        // 0.25 * R * D * G1(wi) * G1(wo) / |cosTheta(wo)| 
+        eval.value = (0.25 *  m_reflectance->evaluate(uv) * microfacet::evaluateGGX(alpha, wh) * microfacet::smithG1(alpha, wh, wi) * microfacet::smithG1(alpha, wh, wo)) / Frame::absCosTheta(wo);
+
+        return eval;
 
         // hints:
         // * the microfacet normal can be computed from `wi' and `wo'
@@ -29,9 +34,15 @@ public:
 
     BsdfSample sample(const Point2 &uv, const Vector &wo,
                       Sampler &rng) const override {
+        BsdfSample sample;
         const auto alpha = std::max(float(1e-3), sqr(m_roughness->scalar(uv)));
+        Point2 samplePoint = rng.next2D();
+        Vector sampledNormal = microfacet::sampleGGXVNDF(alpha, wo, samplePoint);
+        sample.wi = reflect(wo, sampledNormal);
+        Vector wh = (sample.wi.normalized() + wo.normalized()).normalized();
+        sample.weight = m_reflectance->evaluate(uv) * microfacet::smithG1(alpha, wh, sample.wi);
 
-        NOT_IMPLEMENTED
+        return sample;
         
         // hints:
         // * do not forget to cancel out as many terms from your equations as possible!

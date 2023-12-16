@@ -20,7 +20,12 @@ public:
 
     BsdfSample sample(const Point2 &uv, const Vector &wo,
                       Sampler &rng) const override {
-        NOT_IMPLEMENTED
+        BsdfSample sample;
+        Vector normal = { 0, 0, 1 };
+        sample.wi = reflect(wo, normal).normalized();
+        sample.weight = m_reflectance->evaluate(uv);
+
+        return sample;
     }
 
     std::string toString() const override {
