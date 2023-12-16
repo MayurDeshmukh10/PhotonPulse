@@ -12,7 +12,10 @@ public:
 
     EmissionEval evaluate(const Point2 &uv, const Vector &wo) const override {
         EmissionEval eval;
-        eval.value = m_emission->evaluate(uv);
+
+        if (wo.z() > 0) {
+            eval.value = m_emission->evaluate(uv);
+        }
 
         return eval;
     }
