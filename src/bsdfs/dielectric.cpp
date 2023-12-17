@@ -29,18 +29,18 @@ public:
         Vector normal = { 0, 0, 1 };
         float ior = m_ior->scalar(uv);
         float cosThetaI = Frame::cosTheta(wo);
+
         bool entering = cosThetaI > 0.f;
-        if(!entering) {
+        if(!entering) {    
             ior = 1 / ior;
             normal = -normal;
         }
-        float F = fresnelDielectric(cosThetaI, ior);
-
+        
+        float F = fresnelDielectric(abs(cosThetaI), ior);
         float random_number = rng.next();
 
         if(random_number <= F) {
-            Vector normal = { 0, 0, 1 };
-            sample.wi = reflect(wo, Vector(0, 0, 1)).normalized();
+            sample.wi = reflect(wo, normal).normalized();
             sample.weight = m_reflectance->evaluate(uv);
         } else {
             sample.wi = refract(wo, normal, ior).normalized();
