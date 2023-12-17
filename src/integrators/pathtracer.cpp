@@ -49,7 +49,7 @@ namespace lightwave {
 
                 if (not its) {
                     // If no intersection was found, return the background color
-                    return color + weight * m_scene->evaluateBackground(ray.direction).value;
+                    return color + weight * m_scene->evaluateBackground(current_ray.direction).value;
                 }
 
                 color += weight * its.evaluateEmission();
@@ -67,7 +67,7 @@ namespace lightwave {
                     color += weight * sampleNextEventLight(its, rng);
                 }
 
-                bsdf_sample = its.sampleBsdf(rng); // Sample a direction from the BSDF
+                bsdf_sample = its.sampleBsdf(rng); // Sample direction and weight from the BSDF
                 weight *= bsdf_sample.weight; 
 
                 current_ray = Ray(its.position, bsdf_sample.wi.normalized());
