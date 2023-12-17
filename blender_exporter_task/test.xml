@@ -8,30 +8,21 @@
       <matrix value="0.68592,0.32401,-0.65156,7.3589,  0.72768,-0.30542,0.61417,-6.9258,  -4.0113e-09,-0.8954,-0.44527,4.9583,  0,0,0,1"/>
     </transform>
   </camera>
+  <light type="point" position="4.0762,1.0055,5.9039" power="0,277.94,1000"/>
   <instance>
     <bsdf type="principled">
-      <texture name="baseColor" type="constant" value="0.47698,0.011152,0.0026335"/>
-      <texture name="roughness" type="constant" value="0"/>
+      <texture name="baseColor" type="constant" value="0.8"/>
+      <texture name="roughness" type="constant" value="0.5"/>
       <texture name="metallic" type="constant" value="0"/>
-      <texture name="specular" type="constant" value="0.7"/>
+      <texture name="specular" type="constant" value="0.5"/>
     </bsdf>
-    <texture name="normal" type="constant" value="0"/>
-    <shape type="mesh" filename="meshes/Sphere.008.ply"/>
+    <shape type="mesh" filename="meshes/Suzanne.ply"/>
     <transform>
-      <matrix value="-42.816,0,0,0.037989,  0,-42.816,0,-0.0091638,  0,0,-42.816,0.029496,  0,0,0,1"/>
+      <matrix value="1,0,0,0,  0,1,0,0,  0,0,1,0,  0,0,0,1"/>
     </transform>
   </instance>
-  <light type="point" position="0,0.5,0.5" power="100,100,50" />
-    <instance>
-      <shape type="sphere"/>
-      <transform>
-        <scale value="0.1"/>
-        <translate x="4.0762" y="1.0055" z="5.9039"/>
-      </transform>
-      <emission type="lambertian">
-        <texture name="emission" type="constant" value="2533,2533,2533"/>
-      </emission>
-    </instance>
+  <light type="point" position="0,-1.5956,1.2204" power="20,20,20"/>
+  <light type="point" position="1.7584,-0.0023542,-0.0078466" power="30,0,0.027716"/>
   <light type="envmap">
     <texture type="constant" value="0.050876,0.050876,0.050876"/>
     <transform>
