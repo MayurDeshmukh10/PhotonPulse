@@ -1,0 +1,46 @@
+<scene id="scene">
+  <camera type="perspective">
+    <integer name="width" value="1920"/>
+    <integer name="height" value="1080"/>
+    <float name="fov" value="39.598"/>
+    <string name="fovAxis" value="x"/>
+    <transform>
+      <matrix value="0.68592,0.32401,-0.65156,7.3589,  0.72768,-0.30542,0.61417,-6.9258,  -4.0113e-09,-0.8954,-0.44527,4.9583,  0,0,0,1"/>
+    </transform>
+  </camera>
+  <instance>
+    <bsdf type="principled">
+      <texture name="baseColor" type="constant" value="0.47698,0.011152,0.0026335"/>
+      <texture name="roughness" type="constant" value="0"/>
+      <texture name="metallic" type="constant" value="0"/>
+      <texture name="specular" type="constant" value="0.7"/>
+    </bsdf>
+    <texture name="normal" type="constant" value="0"/>
+    <shape type="mesh" filename="meshes/Sphere.008.ply"/>
+    <transform>
+      <matrix value="-42.816,0,0,0.037989,  0,-42.816,0,-0.0091638,  0,0,-42.816,0.029496,  0,0,0,1"/>
+    </transform>
+  </instance>
+  <light type="point" position="0,0.5,0.5" power="100,100,50" />
+    <instance>
+      <shape type="sphere"/>
+      <transform>
+        <scale value="0.1"/>
+        <translate x="4.0762" y="1.0055" z="5.9039"/>
+      </transform>
+      <emission type="lambertian">
+        <texture name="emission" type="constant" value="2533,2533,2533"/>
+      </emission>
+    </instance>
+  <light type="envmap">
+    <texture type="constant" value="0.050876,0.050876,0.050876"/>
+    <transform>
+      <matrix value="1,0,0,0,  0,0,1,0,  0,-1,0,0,  0,0,0,1"/>
+    </transform>
+  </light>
+</scene>
+<integrator type="pathtracer" depth="3" nee="true" mis="true">
+  <ref id="scene"/>
+  <image id="noisy"/>
+  <sampler type="independent" count="64"/>
+</integrator>
