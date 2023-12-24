@@ -1,7 +1,6 @@
 #include <lightwave.hpp>
 #ifdef LW_WITH_OIDN
-  #include <OpenImageDenoise/oidn.hpp>
-#endif
+#include <OpenImageDenoise/oidn.hpp>
 
 namespace lightwave {
 
@@ -52,3 +51,4 @@ namespace lightwave {
 } // namespace lightwave
 
 REGISTER_POSTPROCESS(Denoise, "denoising")
+#endif
