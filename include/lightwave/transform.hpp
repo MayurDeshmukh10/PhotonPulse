@@ -81,6 +81,12 @@ public:
         }
     }
 
+    Vector applyNormal(const Vector &normal) const {
+        Matrix4x4 adjointMatrix = m_inverse.transpose();
+        const Vector4 result = adjointMatrix * Vector4(normal, 0);
+        return Vector(result.x(), result.y(), result.z());
+    }
+
     /// @brief Appends a translation to this transform.
     void translate(const Vector &translation) {
         m_transform = Matrix4x4 {
