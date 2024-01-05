@@ -12,11 +12,24 @@ void Instance::transformFrame(SurfaceEvent &surf) const {
     // * make sure that the frame is orthonormal (you are free to change the bitangent for this, but keep
     //   the direction of the transformed tangent the same)
     
+    // apply normal mapping
+    if(m_normal) {
+        Color normal_mapping = m_normal->evaluate(surf.uv);
+        // converting [0,1]^3 to [-1,1]^3
+        Color M = Color(2 * normal_mapping.r() - 1, 2 * normal_mapping.g() - 1, 2 * normal_mapping.b() - 1);
+        // (Mr * tangent + Mg * bitangent + 5 * Mb * normal)
+        Vector mappedNormal = (M.r() * surf.frame.tangent + M.g() * surf.frame.bitangent + 5 * M.b() * surf.frame.normal).normalized();
+        surf.frame = Frame(mappedNormal);
+        surf.frame.tangent = m_transform->apply(surf.frame.tangent).normalized();
+        surf.frame.bitangent = m_transform->apply(surf.frame.bitangent).normalized();
+        surf.frame.normal = m_transform->applyNormal(surf.frame.normal).normalized();
+    } else {
+        surf.frame.tangent = m_transform->apply(surf.frame.tangent).normalized();
+        surf.frame.bitangent = m_transform->apply(surf.frame.bitangent).normalized();
+        surf.frame.normal = surf.frame.tangent.cross(surf.frame.bitangent).normalized();
+    }
+    
     surf.position = m_transform->apply(surf.position);
-    surf.frame.tangent = m_transform->apply(surf.frame.tangent).normalized();
-    surf.frame.bitangent = m_transform->apply(surf.frame.bitangent).normalized();
-
-    surf.frame.normal = surf.frame.tangent.cross(surf.frame.bitangent).normalized();
 
     if (m_flipNormal) {
         surf.frame.bitangent = -surf.frame.bitangent;
