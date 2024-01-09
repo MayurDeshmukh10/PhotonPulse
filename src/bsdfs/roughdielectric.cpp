@@ -26,35 +26,27 @@ namespace lightwave {
                 BsdfSample sample;
                 float ior = m_ior->scalar(uv);
                 float cosThetaI = Frame::cosTheta(wo);
-
                 bool entering = cosThetaI > 0.f;
+                Point2 sampledPoint = rng.next2D();
+                float random_number = rng.next();
+                const auto alpha = std::max(float(1e-3), sqr(m_roughness->scalar(uv)));
+                Vector sampledNormal = microfacet::sampleGGXVNDF(alpha, wo, sampledPoint);
                 if(!entering) {    
                     ior = 1 / ior;
                 }
-                const auto alpha = std::max(float(1e-3), sqr(m_roughness->scalar(uv)));
-                float F = fresnelDielectric(abs(cosThetaI), ior);
-                float random_number = rng.next();
-                Point2 samplePoint = rng.next2D();
-                Vector sampledNormal = microfacet::sampleGGXVNDF(alpha, wo, samplePoint);
 
-                if(random_number <= F) {
-                    sample.wi = reflect(wo, sampledNormal);
-                    if(!Frame::sameHemisphere(wo, sample.wi)) {
-                        return sample.invalid();
-                    }
-                    Vector wh = (sample.wi.normalized() + wo.normalized()).normalized();
-                    sample.weight = m_reflectance->evaluate(uv) * microfacet::smithG1(alpha, wh, sample.wi);
-                    return sample;
+                float R = fresnelDielectric(wo.dot(sampledNormal), ior);
+
+                if(random_number < R) {
+                    sample.wi = reflect(wo, sampledNormal).normalized();
+                    Vector wh = (sample.wi + wo.normalized()).normalized();
+                    sample.weight = m_reflectance->evaluate(uv) * microfacet::smithG1(alpha, wh, sample.wi);            
                 } else {
-                    if(!entering) {
-                        sampledNormal = -sampledNormal;
-                    }
-                    sample.wi = refract(wo, sampledNormal, ior);
-                    Vector wh = (sample.wi.normalized() + wo.normalized()).normalized();
-                    sample.weight = m_transmittance->evaluate(uv) * microfacet::smithG1(alpha, wh, sample.wi);
-                    return sample;
+                    sample.wi = refract(wo, sampledNormal, ior).normalized();
+                    Vector wh = -(wo.normalized() + sample.wi * ior).normalized();
+                    sample.weight = m_transmittance->evaluate(uv) * microfacet::smithG1(alpha, wh, sample.wi) / (ior * ior);
                 }
-
+                return sample;
             }
 
             std::string toString() const override {
