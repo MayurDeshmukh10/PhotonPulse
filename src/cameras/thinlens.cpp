@@ -19,17 +19,14 @@ class Thinlens : public Camera {
     float aperture;
     float focus_distance;
 
-    
-
 public:
     Thinlens(const Properties &properties): Camera(properties) {
-        const float fov = properties.get<float>("fov");
-        const float aspect_ratio = 1.0 * this->m_resolution.x() / this->m_resolution.y();
-        
         aperture = properties.get<float>("apertureRadius");
         focus_distance = properties.get<float>("focusDistance"); // distance from camera to focal plane
 
-        
+        const float fov = properties.get<float>("fov");
+        const float aspect_ratio = 1.0 * this->m_resolution.x() / this->m_resolution.y();
+    
         this->spanning_length = tan((fov*M_PI/180)/2);
 
         if (properties.get<std::string>("fovAxis") == "x") {            
@@ -73,9 +70,13 @@ public:
             "  width = %d,\n"
             "  height = %d,\n"
             "  transform = %s,\n"
+            "  aperture = %f,\n"
+            "  focus_distance = %f,\n"
             "]",
             m_resolution.x(),
             m_resolution.y(),
+            aperture,
+            focus_distance,
             indent(m_transform)
         );
     }
