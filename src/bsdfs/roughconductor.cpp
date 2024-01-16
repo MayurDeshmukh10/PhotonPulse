@@ -32,18 +32,18 @@ public:
         // * the microfacet normal can be computed from `wi' and `wo'
     }
 
-        BsdfSample sample(const Point2 &uv, const Vector &wo,
-                        Sampler &rng) const override {
-            BsdfSample sample;
-            const auto alpha = std::max(float(1e-3), sqr(m_roughness->scalar(uv)));
-            Point2 samplePoint = rng.next2D();
-            Vector sampledNormal = microfacet::sampleGGXVNDF(alpha, wo, samplePoint);
-            sample.wi = reflect(wo, sampledNormal);
-            Vector wh = (sample.wi.normalized() + wo.normalized()).normalized();
-            sample.weight = m_reflectance->evaluate(uv) * microfacet::smithG1(alpha, wh, sample.wi);
+    BsdfSample sample(const Point2 &uv, const Vector &wo,
+                    Sampler &rng) const override {
+        BsdfSample sample;
+        const auto alpha = std::max(float(1e-3), sqr(m_roughness->scalar(uv)));
+        Point2 samplePoint = rng.next2D();
+        Vector sampledNormal = microfacet::sampleGGXVNDF(alpha, wo, samplePoint);
+        sample.wi = reflect(wo, sampledNormal);
+        Vector wh = (sample.wi.normalized() + wo.normalized()).normalized();
+        sample.weight = m_reflectance->evaluate(uv) * microfacet::smithG1(alpha, wh, sample.wi);
 
-            return sample;
-        }
+        return sample;
+    }
 
     Color albedo(const Point2 &uv, const Vector &wo, Sampler &rng) const override {
         return m_reflectance->evaluate(uv);
