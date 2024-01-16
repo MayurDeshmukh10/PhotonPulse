@@ -28,6 +28,11 @@ public:
         return sample;
     }
 
+   Color albedo(const Point2 &uv, const Vector &wo,
+                Sampler &rng) const override {
+        return m_reflectance->evaluate(uv);
+    } 
+
     std::string toString() const override {
         return tfm::format("Conductor[\n"
                            "  reflectance = %s\n"

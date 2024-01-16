@@ -157,6 +157,10 @@ public:
         // `combination.diffuseSelectionProb`) or `combination.metallic`
     }
 
+    Color albedo(const Point2 &uv, const Vector &wo, Sampler &rng) const override {
+        return m_baseColor->evaluate(uv);
+    }
+
     std::string toString() const override {
         return tfm::format("Principled[\n"
                            "  baseColor = %s,\n"
