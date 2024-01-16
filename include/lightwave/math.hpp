@@ -772,7 +772,7 @@ struct Intersection : public SurfaceEvent {
     /// @brief Evaluates the Bsdf of the underlying surface.
     BsdfEval evaluateBsdf(const Vector &wi) const;
 
-    Color evaluateAlbedo() const;
+    Color evaluateAlbedo(Sampler &rng) const;
 };
 
 /// @brief Print a given point to an output stream.

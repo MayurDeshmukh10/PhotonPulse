@@ -42,8 +42,7 @@ public:
         return sample;
     }
 
-    Color albedo(const Point2 &uv) const override {
-
+    Color albedo(const Point2 &uv, const Vector &wo, Sampler &rng) const override {
         return m_albedo->evaluate(uv);
     }
 

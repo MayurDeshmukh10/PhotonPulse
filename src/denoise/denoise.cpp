@@ -12,10 +12,10 @@ namespace lightwave {
 
   public:
       Denoise(const Properties &properties): Postprocess(properties) {
+        normal = properties.get<Image>("normals");
+        albedo = properties.get<Image>("albedo");
         input = m_input;
         output = m_output;
-        normal = m_normals;
-        albedo = m_albedo;
       }
 
       void execute() override {

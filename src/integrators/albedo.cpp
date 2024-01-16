@@ -13,7 +13,7 @@ namespace lightwave {
             Intersection its = scene()->intersect(ray, rng);
 
             if (its) {
-                return its.evaluateAlbedo();
+                return its.evaluateAlbedo(rng);
             }
             
             return Color(0);
