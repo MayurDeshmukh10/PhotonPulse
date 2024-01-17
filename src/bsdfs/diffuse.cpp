@@ -42,6 +42,10 @@ public:
         return sample;
     }
 
+    Color albedo(const Point2 &uv, const Vector &wo, Sampler &rng) const override {
+        return m_albedo->evaluate(uv);
+    }
+
     std::string toString() const override {
         return tfm::format("Diffuse[\n"
                            "  albedo = %s\n"

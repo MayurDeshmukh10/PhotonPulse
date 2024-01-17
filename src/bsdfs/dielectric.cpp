@@ -49,6 +49,23 @@ public:
         return sample;
     }
 
+    Color albedo(const Point2 &uv, const Vector &wo, Sampler &rng) const override {
+        float ior = m_ior->scalar(uv);
+        float cosThetaI = Frame::cosTheta(wo);
+        bool entering = cosThetaI > 0.f;
+        if(!entering) {    
+            ior = 1 / ior;
+        }
+        float F = fresnelDielectric(abs(cosThetaI), ior);
+        float random_number = rng.next();
+        return m_reflectance->evaluate(uv);
+        if(random_number <= F) {
+            return m_reflectance->evaluate(uv);
+        } else {
+            return m_transmittance->evaluate(uv) / (ior * ior);
+        }
+    }
+    
     std::string toString() const override {
         return tfm::format("Dielectric[\n"
                            "  ior           = %s,\n"

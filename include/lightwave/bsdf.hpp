@@ -77,6 +77,18 @@ public:
      */
     virtual BsdfSample sample(const Point2 &uv, const Vector &wo,
                               Sampler &rng) const = 0;
+
+    /**
+     * @brief Evaluates the albedo for a given texture coordinates.
+     * @param uv The texture coordinates of the surface.
+     * @param wo The outgoing direction light is scattered in, pointing away
+     * from the surface, in local coordinates.
+     * @param rng A random number generator used to steer the sampling.
+     */
+    virtual Color albedo(const Point2 &uv, const Vector &wo,
+                         Sampler &rng) const {
+        NOT_IMPLEMENTED
+    }
 };
 
 } // namespace lightwave
