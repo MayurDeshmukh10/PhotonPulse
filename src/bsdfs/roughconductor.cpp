@@ -33,7 +33,7 @@ public:
     }
 
     BsdfSample sample(const Point2 &uv, const Vector &wo,
-                      Sampler &rng) const override {
+                    Sampler &rng) const override {
         BsdfSample sample;
         const auto alpha = std::max(float(1e-3), sqr(m_roughness->scalar(uv)));
         Point2 samplePoint = rng.next2D();
@@ -43,10 +43,10 @@ public:
         sample.weight = m_reflectance->evaluate(uv) * microfacet::smithG1(alpha, wh, sample.wi);
 
         return sample;
-        
-        // hints:
-        // * do not forget to cancel out as many terms from your equations as possible!
-        //   (the resulting sample weight is only a product of two factors)
+    }
+
+    Color albedo(const Point2 &uv, const Vector &wo, Sampler &rng) const override {
+        return m_reflectance->evaluate(uv);
     }
 
     std::string toString() const override {
