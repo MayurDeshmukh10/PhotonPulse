@@ -15,10 +15,10 @@ namespace lightwave {
                 unsigned int base = Primes[dimension];
                 double result = 0.0;
                 double f = 1.0 / base;
-                int i = haltonIndex;
+                int64_t i = haltonIndex;
                 while(i > 0) {
                     result += f * (i % base);
-                    i = static_cast<int>(i / base);
+                    i = static_cast<int64_t>(i / base);
                     f /= base;
                 }
                 double maskedNumber = result + mask;
