@@ -46,7 +46,7 @@ public:
     CameraSample sample(const Point2 &normalized, Sampler &rng) const override {
         const Vector initial_direction = this->focal_vector + this->spanning_x * normalized.x() + this->spanning_y * normalized.y();
 
-        Point focus_point = Point(0.f, 0.f, 0.f) + initial_direction.normalized() * focus_distance;
+        Point focus_point = Point(0.f, 0.f, 0.f) + initial_direction * focus_distance;
 
         Point2 starting_point_2d = squareToUniformDiskConcentric(rng.next2D());
         starting_point_2d.x() *= aperture;
