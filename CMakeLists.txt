@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.9...3.20)
 
+
 set(FEATURES "" CACHE STRING "Features to enable")
 set(EXTRA_DEFINES "" CACHE STRING "Additional defines")
 
@@ -72,11 +73,24 @@ file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS "src/**/*.cpp" "src/**/*.hpp" "
 set(MY_TARGET_NAME eevee_fork) # Change `unnamed` to your favourite own executable name
 # ######################
 
+find_package(OpenCV)
 find_package(OpenImageDenoise)
 
 add_executable(${MY_TARGET_NAME} ${SOURCE_FILES})
 target_compile_definitions(${MY_TARGET_NAME} PUBLIC "${FEATURES};${EXTRA_DEFINES}")
-target_link_libraries(${MY_TARGET_NAME} PRIVATE miniz Threads::Threads)
+
+if(OpenCV_FOUND)
+    include_directories( ${OpenCV_INCLUDE_DIRS} )
+    target_link_libraries(${MY_TARGET_NAME} PRIVATE miniz Threads::Threads ${OpenCV_LIBS})
+    target_include_directories(${MY_TARGET_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
+    target_compile_definitions(${MY_TARGET_NAME} PRIVATE "LW_WITH_OPENCV")
+else()
+    message(WARNING "No Blooming post-fx support")
+    target_link_libraries(${MY_TARGET_NAME} PRIVATE miniz Threads::Threads)
+endif()
+
+
+
 target_include_directories(${MY_TARGET_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${MY_TARGET_NAME} PRIVATE ${stb_SOURCE_DIR} ${tinyexr_SOURCE_DIR} PUBLIC ${tinyformat_SOURCE_DIR})
 target_compile_definitions(${MY_TARGET_NAME} PUBLIC "$<$<CONFIG:Debug>:LW_DEBUG>")

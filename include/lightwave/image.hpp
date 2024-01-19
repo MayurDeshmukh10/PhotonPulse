@@ -12,6 +12,10 @@
 #include <lightwave/math.hpp>
 #include <lightwave/properties.hpp>
 
+#ifdef LW_WITH_OPENCV
+#include <opencv2/opencv.hpp>
+#endif
+
 namespace lightwave {
 
 /// @brief An image.
@@ -58,6 +62,48 @@ public:
             m_basePath = properties.basePath();
         }
     }
+    
+#ifdef LW_WITH_OPENCV
+    Image(const cv::Mat &mat) {
+        auto width = mat.cols;
+        auto height = mat.rows;
+
+        m_resolution = Point2i(width, height);
+        m_data.resize(width * height);
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++){
+                Color pixel_value = Color(mat.at<cv::Vec3f>(y, x)[0], mat.at<cv::Vec3f>(y, x)[1], mat.at<cv::Vec3f>(y, x)[2]);
+                
+                Point2i pixel_coords = Point2i(x, y);
+                this->operator()(pixel_coords) = pixel_value;
+            }
+        }
+    }
+
+    cv::Mat toCvMat() const{
+        auto width = this->resolution().x();
+        auto height = this->resolution().y();
+
+        cv::Mat mat = cv::Mat(height, width, CV_32FC3);
+
+        Point2i pixel_coords;
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++){
+                
+                pixel_coords = Point2i(x, y);
+                Color pixel_value = this->get(pixel_coords);
+
+                mat.at<cv::Vec3f>(y, x)[0] = pixel_value.r();
+                mat.at<cv::Vec3f>(y, x)[1] = pixel_value.g();
+                mat.at<cv::Vec3f>(y, x)[2] = pixel_value.b();
+            }
+        }
+
+        return mat;
+    }
+#endif // LW_WITH_OPENCV
 
     /// @brief Sets the folder the image will be stored in if no explicit path
     /// is given.
