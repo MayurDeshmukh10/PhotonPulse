@@ -21,7 +21,7 @@ void Instance::transformFrame(SurfaceEvent &surf) const {
 
         // (Mr * tangent + Mg * bitangent + 5 * Mb * normal)
         Vector mappedNormal = (M.r() * surf.frame.tangent + M.g() * surf.frame.bitangent +  M.b() * surf.frame.normal).normalized();
-        surf.frame = Frame(m_transform->applyNormal(mappedNormal));
+        surf.frame = Frame(m_transform->applyNormal(mappedNormal).normalized());
     } else {
         surf.frame.tangent = m_transform->apply(surf.frame.tangent).normalized();
         surf.frame.bitangent = m_transform->apply(surf.frame.bitangent).normalized();
