@@ -16,7 +16,6 @@
 		<!-- Nav -->
 			<nav id="nav">
 				<ul class="container">
-					<li class="lii">CG</li>
 					<li><a href="#scene">The Scene</a></li>
 					<li><a href="#scene_details">Concept</a></li>
 					<li><a href="#features">Features</a></li>
@@ -37,7 +36,7 @@
 								<p><center><h3><strong style="color: #fff">A Timeless Odyssey in Old Edo's Shadows</strong></h3></center></p>
 								<br><br>
 							<!-- </header> -->
-							<center><p>Rendering Competition 2023/2024 <br> <br>
+							<center><p>C.G Rendering Competition 2023/2024 <br> <br>
 								<strong style="color: #fff">Team Dashbun</strong> <br>
 							Mayur Deshmukh <br>
 							Bartlomiej Pogodziński</p></center>
@@ -46,9 +45,13 @@
 				</div>
 			</article>
 
-			<article id="scene" class="wrapper style2">
+			<article  class="wrapper style2">
 				<div class="container">
-					<a href="#" class="image featured"><img src="images/pic03.jpg" alt="" /></a>
+					<header>
+						<h2>Scene</h2>
+						<!-- <p>Proin odio consequat  sapien vestibulum consequat lorem dolore feugiat.</p> -->
+					</header>
+					<a id="scene" class="image featured"><img src="images/scene_high_resolution.png" alt="" /></a>
 				</div>
 			</article>
 
@@ -76,24 +79,10 @@
 				<div class="container">
 					<header>
 						<h2>Features</h2>
-						<p>Proin odio consequat  sapien vestibulum consequat lorem dolore feugiat.</p>
+						<br>
+						<!-- <p>Proin odio consequat  sapien vestibulum consequat lorem dolore feugiat.</p> -->
 					</header>
 					<div class="row">
-						<div class="col-6 col-6-medium col-12-medium">
-							<!-- <article class="box style1"> -->
-								<a href="#" class="image featured"><img src="images/improved_env_sampling.png" alt="" /></a>
-								<!-- <h3><a href="#">Magna feugiat</a></h3>
-								<p>Ornare nulla proin odio consequat.</p> -->
-							<!-- </article> -->
-						</div>
-						<div class="col-5 col-6-medium col-12-medium">
-							<!-- <article class="box style2"> -->
-								<!-- <a href="#" class="image featured"><img src="images/pic02.jpg" alt="" /></a> -->
-								<h3><a href="#">Improved Environment Sampling</a></h3>
-								<p>Adding High Dynamic Range (HDR) images as background lights can make for a simple and realistic light source
-									in a renderer. </p>
-							<!-- </article> -->
-						</div>
 						<div class="col-5 col-6-medium col-12-medium">
 							<!-- <article class="box style2"> -->
 								<!-- <a href="#" class="image featured"><img src="images/pic03.jpg" alt="" /></a> -->
@@ -153,12 +142,29 @@
 								<p>Denoising can greatly improve the quality of low sample count renders. Arbitrary output variables (AOVs)
 									such as albedo and normals are feed to the denoiser improve the quality of the denoised images and
 									avoid overly blurry denoised images.
+									
 								</p>
+								<br>
+								<br><br><br><br><br><br>
 							<!-- </article> -->
 						</div>
 						<div class="col-6 col-6-medium col-12-small">
+							<!-- <div id="container1">
+								<img src='images/image_denoising.png'>
+								<img src='images/image_denoising.png'>
+							</div> -->
+
+							<div class="img-comp-container">
+								<div class="img-comp-img">
+									<img src="images/image_denoising.png" width="500" height="400">
+								</div>
+								<div class="img-comp-img img-comp-overlay">
+									<img src="images/bloom_effect.png" width="500" height="400">
+								</div>
+							</div>
+							<!-- <img src='images/image_denoising.png'> -->
 							<!-- <article class="box style2"> -->
-								<a class="image featured"><img src="images/image_denoising.png" alt="" /></a>
+								<!-- <a class="image featured"><img src="images/image_denoising.png" alt="" /></a> -->
 							<!-- </article> -->
 						</div>
 						<div class="col-6 col-6-medium col-12-small">
@@ -241,11 +247,47 @@
 					<div class="row">
 						<div class="col-12">
 							<ul class="actions">
-								<li><a class="button" href="assets/img/low_res.png">2100x1090</a></li>
+								<li><a class="button" href="images/scene_high_resolution.png" target="_blank">1920x1080</a></li>
 								<li><a class="button" href="assets/img/high_res.png">500x260</a></li>
 							</ul>
 						</div>
 					</div>
+				</div>
+			</article>
+
+			<article id="references" class="wrapper style1">
+				<div class="container medium">
+					<header>
+						<h2>References</h2>
+					</header>
+					<div class="row">
+						<ul class="actions">
+							<li><a class="references" href="https://html5up.net/miniport" target="_blank">Webpage Template</a></li>
+							<li><a class="references" href="#" target="_blank">To add</a></li>
+							<li><a class="references" href="#" target="_blank">To add</a></li>
+							<li><a class="references" href="#" target="_blank">To add</a></li>
+							<li><a class="references" href="#" target="_blank">To add</a></li>
+							<li><a class="references" href="#" target="_blank">To add</a></li>
+							<li><a class="references" href="#" target="_blank">To add</a></li>
+						</ul>
+					</div>
+				</div>
+			</article>
+
+			<article id="credits" class="wrapper style1">
+				<div class="container medium">
+					<header>
+						<h2>Credits</h2>
+					</header>
+					<div class="row">
+						<p>We would like to thank Prof. Slusallek for this course and our tutors - Alexander Rath, Philippe Weier for all their help throughout the semester.</p>
+					</div>
+					<br><br><br>
+					<footer>
+						<ul id="copyright">
+							<li>Copyright &copy; 2023 - Mayur Deshmukh & Bartlomiej Pogodziński</li>
+						</ul>
+					</footer>
 				</div>
 			</article>
 
@@ -256,6 +298,9 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
-
+			<script src="assets/js/imagecomparison.js"></script>
+			<script>
+				initComparisons();
+			</script>
 	</body>
 </html>
