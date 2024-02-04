@@ -48,7 +48,7 @@
 			<article  class="wrapper style2">
 				<div class="container">
 					<header>
-						<h2>Scene</h2>
+						<h2>The Scene</h2>
 						<!-- <p>Proin odio consequat  sapien vestibulum consequat lorem dolore feugiat.</p> -->
 					</header>
 					<a id="scene" class="image featured"><img src="images/scene_high_resolution.png" alt="" /></a>
@@ -93,22 +93,20 @@
 						</div>
 						<div class="col-6 col-6-medium col-12-small">
 
-								<a class="image featured"><img src="images/rough_dielectric.png" alt="" /></a>
+								<a class="image featured"><img src="images/rough_dielectric.png" alt="" width="800" height="500"></a>
 							<!-- </article> -->
 						</div>
 						<div class="col-5 col-6-medium col-12-medium">
 
 								<h3>Rough Dielectric</h3>
-								<p>Rough dielectrics are another type of BSDF that can simulate very interesting materials such as frosted glass
-									or add even more realism to other types of dielectrics by adding a bit of roughness to the surface.</p>
+								<p>We have implemented rough dielectric BSDF that can simulate materials such as frosted glass by adding a bit of roughness to the surface. We showcase this in our scene through the wine glasses.</p>
 							<!-- </article> -->
 						</div>
 						<div class="col-5 col-6-medium col-12-medium">
 
 								<!-- <a href="#" class="image featured"><img src="images/pic03.jpg" alt="" /></a> -->
 								<h3>Halton Sampler</h3>
-								<p>The Halton Sampler allows to generate such low-discrepancy sample points for an arbitrary number of integral
-									dimensions.</p>
+								<p>We implemented Halton Sampler which generates low-discrepancy sample points for an arbitrary number of integral. With the use of Halton Sampler we achieved a significant noise reduction with less number of samples as compared to default Independent sampler.</p>
 									<br><br><br><br><br><br><br><br><br><br><br><br><br>
 						</div>
 						<div class="col-6 col-6-medium col-12-small">
@@ -138,30 +136,27 @@
 						</div>
 						<div class="col-5 col-6-medium col-12-medium">
 								<h3>Shading Normals</h3>
-								<p>shading normal (a.k.a normal mapping) to you renderer can greatly enhances its realism as it can add
-									a lot of detail without requiring complex meshes. The main idea is that instead of directly using the normals
-									of the mesh you load an additional texture that describes the normals of the underlying geometry instead</p>
-									<br><br><br><br><br><br><br><br>
+								<p>With the implementation of shading normal it greatly enhanced our scene's realism by adding lot of details to the textures by using the normals of underlying geometry.</p>
+									<br><br><br><br><br><br><br><br><br><br><br><br>
 						</div>
 						<div class="col-5 col-6-medium col-12-medium">
 								<h3>Image Denoising</h3>
-								<p>Denoising can greatly improve the quality of low sample count renders. Arbitrary output variables (AOVs)
-									such as albedo and normals are feed to the denoiser improve the quality of the denoised images and
-									avoid overly blurry denoised images.
+								<p>We integrated Intel Open Image Denoise library for applying denoising on our rendered scene. Through this we were significantly able to decrease the noise. We also fed normals, albedo (AOVs) to the library which drastically improved the quality of our denoised image.
 									
 								</p>
 								<br>
-								<br><br><br><br><br><br>
+								<br><br><br><br><br><br><br><br><br><br>
 						</div>
 						<div class="col-6 col-6-medium col-12-small">
 							<div class="img-comp-container">
 								<div class="img-comp-img">
-									<img src="images/image_denoising.png" width="500" height="400">
+									<img src="images/noisy.png" width="800" height="500">
 								</div>
 								<div class="img-comp-img img-comp-overlay">
-									<img src="images/bloom_effect.png" width="500" height="400">
+									<img src="images/denoised.png" width="800" height="500">
 								</div>
 							</div>
+							
 						</div>
 						<div class="col-6 col-6-medium col-12-small">
 							<div class="img-comp-container">
@@ -215,25 +210,25 @@
 						<div class="col-3 col-6-medium col-12-medium">
 							<article class="box style2">
 								<h3><a href="#">Resolution</a></h3>
-								<p>1920x1080</p>
+								<p>2560x1440</p>
 							</article>
 						</div>
 						<div class="col-3 col-6-medium col-12-medium">
 							<article class="box style2">
 								<h3><a href="#">Primitives</a></h3>
-								<p>50000</p>
+								<p>3994191</p>
 							</article>
 						</div>
 						<div class="col-3 col-6-medium col-12-medium">
 							<article class="box style2">
 								<h3><a href="#">Samples</a></h3>
-								<p>1500</p>
+								<p>64</p>
 							</article>
 						</div>
 						<div class="col-3 col-6-medium col-5-medium">
 							<article class="box style2">
 								<h3><a href="#">Rendering Time</a></h3>
-								<p>4 hrs</p>
+								<p>1 hr 15 mins</p>
 							</article>
 						</div>
 					</div>
@@ -249,8 +244,8 @@
 					<div class="row">
 						<div class="col-12">
 							<ul class="actions">
-								<li><a class="button" href="images/scene_high_resolution.png" target="_blank">1920x1080</a></li>
-								<li><a class="button" href="assets/img/high_res.png">500x260</a></li>
+								<li><a class="button" href="images/scene_exr.exr" target="_blank">2560x1440 (EXR)</a></li>
+								<li><a class="button" href="images/scene_high_resolution.png" target="_blank">2560x1440 (PNG)</a></li>
 							</ul>
 						</div>
 					</div>
@@ -265,8 +260,8 @@
 					<div class="row">
 						<ul class="actions">
 							<li><a class="references" href="https://html5up.net/miniport" target="_blank">Webpage Template</a></li>
-							<li><a class="references" href="#" target="_blank">To add</a></li>
-							<li><a class="references" href="#" target="_blank">To add</a></li>
+							<li><a class="references" href="https://www.openimagedenoise.org/" target="_blank">Intel Open Image Denoise</a></li>
+							<li><a class="references" href="https://opencv.org/" target="_blank">OpenCV</a></li>
 							<li><a class="references" href="#" target="_blank">To add</a></li>
 							<li><a class="references" href="#" target="_blank">To add</a></li>
 							<li><a class="references" href="#" target="_blank">To add</a></li>
