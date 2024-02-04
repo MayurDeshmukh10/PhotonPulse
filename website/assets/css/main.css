@@ -2506,8 +2506,8 @@ input, select, textarea {
 		z-index: 9;
 		cursor: ew-resize;
 		/*set the appearance of the slider:*/
-		width: 40px;
-		height: 40px;
+		width: 30px;
+		height: 30px;
 		background-color: #2196F3;
 		opacity: 0.7;
 		border-radius: 50%;
