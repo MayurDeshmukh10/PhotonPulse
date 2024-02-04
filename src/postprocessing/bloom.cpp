@@ -12,6 +12,7 @@ namespace lightwave {
         float m_threshold;
         float m_radius;
         float m_strength;
+        float m_upper_brightness_bound;
 
     public:
         ImageBloom(const Properties &properties) : Postprocess(properties) {
@@ -21,6 +22,7 @@ namespace lightwave {
             m_threshold = properties.get<float>("threshold");
             m_radius = properties.get<float>("radius");
             m_strength = properties.get<float>("strength");
+            m_upper_brightness_bound = properties.get<float>("upper_brightness_bound");
         }
 
         float get_contribution(Color pixel) {
@@ -43,6 +45,12 @@ namespace lightwave {
                     pixel_coords = Point2i(x, y);
 
                     Color pixel_value = image.get(pixel_coords);
+
+                    pixel_value.r() = std::min(pixel_value.r(), m_upper_brightness_bound);
+                    pixel_value.g() = std::min(pixel_value.g(), m_upper_brightness_bound);
+                    pixel_value.b() = std::min(pixel_value.b(), m_upper_brightness_bound);
+
+
                     highlight_image(pixel_coords) = pixel_value * get_contribution(pixel_value);
                 }
             }
