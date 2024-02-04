@@ -1,6 +1,6 @@
 
 <integrator type="direct">
-    <image id="raw"/>
+    <image id="non_bloomed"/>
     <scene id="scene">
         <camera type="perspective" id="camera">
             <integer name="width" value="512"/>
