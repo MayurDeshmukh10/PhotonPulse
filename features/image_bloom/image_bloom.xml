@@ -54,7 +54,8 @@
 <postprocess type="image_bloom">
     <ref name="input" id="raw"/>
     <float name="threshold" value="0.2"/>
-    <float name="radius" value="23"/>
+    <float name="radius" value="33"/>
     <float name="strength" value="0.3"/>
+    <float name="upper_brightness_bound" value="5.1"/>
     <image id="bloomed"/>
 </postprocess>
